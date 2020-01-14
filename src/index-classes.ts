@@ -3,50 +3,71 @@
 // Player Object
 
 class Entity {
-  x: number;
-  y: number;
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    position: any;
+    speed: any;
+    direction: any;
+    time: number;
+    width: number;
+    height: number;
+    hp: number;
+  constructor(position, speed, direction) {
+    this.position = position
+    this.speed = speed
+    this.direction = direction
+    this.time = 0
+    this.width = 5
+    this.height = 5
+    this.hp = 1
+  }
+
+  update = (dt) => {
+      this.time += dt;
+  }
+
+  collisionRect = () => {
+      return new Rectangle(this.position.x - this.width/2,
+                            this.position.y - this.height/2,
+                            this.width, 
+                            this.height);
+      
   }
 }
 
 class Player extends Entity {
   width: number;
   height: number;
-  direction: number;
 
-  constructor(x, y) {
-    super(x, y);
-    this.width = 20;
-    this.height = 20;
-    this.direction = -1;
-  }
+    constructor(position, speed, direction) {
+        super(position, speed, direction);
+        this.width = 20;
+        this.height = 10;
+      }
 
-  update = () => {
-    if (this.y <= 0 || this.y + this.height >= game.gameFieldHeight {
-      this.direction *= -1;
+  update = (dt) => {
+      super.update(dt)
+    if (this.collisionRect().top() <= 0 || 
+    this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+        this.direction.y *= -1;
     }
-  };
 }
 
 class Enemy extends Entity {
-  width: number;
-  height: number;
-  direction: number;
+ 
+    rank: number;
 
-  constructor(x, y) {
-    super(x, y);
-    this.width = 10;
+  constructor(position, speed, direction, rank) {
+    super(position, speed, direction);
+    this.width = 13;
     this.height = 10;
-    this.direction = 1;
+    this.rank = rank;
   }
 
-  update = () => {
-    if (this.y <= 0 || this.y + this.height >= game.gameFieldHeight {
-      this.direction *= -1;
-    }
-  }
+  update = (dt) => {
+      super.update(dt)
+      if (this.collisionRect().top() <= 0 || 
+          this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+              this.direction.y *= -1 
+          }
 }
 
 //Renderer Object
@@ -85,44 +106,6 @@ class Renderer {
   };
 }
 
-// let renderer = (function() {
-//   function _drawEnemy(context, enemy) {
-//     context.fillStyle = "red";
-//     context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-//   }
-
-//   function _drawPlayer(context, player) {
-//     context.fillStyle = "blue";
-//     context.fillRect(player.x, player.y, player.width, player.height);
-//   }
-
-//   function _render() {
-//     let canvas = document.querySelector("#game-layer");
-//     let context = canvas.getContext("2d");
-
-//     context.fillStyle = "gray";
-//     context.fillRect(0, 0, canvas.width, canvas.height);
-
-//     let i;
-//     let entity;
-//     let entities = game.entities();
-
-//     for (i = 0; i < entities.length; i++) {
-//       entity = entities[i];
-
-//       if (entity instanceof Enemy) {
-//         _drawEnemy(context, entity);
-//       } else if (entity instanceof Player) {
-//         _drawPlayer(context, entity);
-//       }
-//     }
-//   }
-
-//   return {
-//     render: _render
-//   };
-// })();
-
 //Physics object
 
 class Physics {
@@ -136,20 +119,6 @@ class Physics {
   };
 }
 
-// let physics = (function() {
-//   function _update() {
-//     let i;
-//     let entities = game.entities();
-
-//     for (i = 0; i < entities.length; i++) {
-//       entities[i].y += entities[i].direction;
-//     }
-//   }
-
-//   return {
-//     update: _update
-//   };
-// })();
 
 //Game object
 
@@ -180,58 +149,94 @@ class Game {
   };
 }
 
-let game = new Game();
-let physics = new Physics();
-let renderer = new Renderer();
-game.start();
+// let game = new Game();
+// let physics = new Physics();
+// let renderer = new Renderer();
+// game.start();
 
-// let game = (function() {
-//   let _gameFieldHeight = 200;
-//   let _entities = [];
+class Vector2d {
+    x: number;
+    y: number; 
 
-//   function _start() {
-//     _entities.push(new Player(100, 175, 0));
-//     _entities.push(new Enemy(20, 25));
-//     _entities.push(new Enemy(80, 25));
-//     _entities.push(new Enemy(160, 25));
+    constructor(x: number, y:number) {
+        this.x = x
+        this.y = y 
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
-//   update() {
-//     physics.update();
+    static vectorAdd = (v1, v2) => {
+        return new Vector2d(v1.x + v2.x, v1.y + v2.y);
+    }
 
-//     let i;
-//     for (i = 0; i < _entities.length; i++) {
-//       _entities[i].update();
-//     }
+    static vectorSubtract = (v1, v2) => {
+        return new Vector2d(v1.x - v2.x, v1.y - v2.y);
+    }
 
-//     renderer.render();
+    static vectorScalarMultiply = (v, s: number) => {
+        return new Vector2d(v.x * s, v.y * s)
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
-// }
+    static vectorLength = v => {
+        return Math.sqrt(v.x * v.x + v.y * v.y)
+    }
 
-//   function _update() {
-//     physics.update();
+    static vectorNormalise = v =>  {
+        let reciprocal = 1.0 / (this.vectorLength(v) + 1.0e-037);
+        return this.vectorScalarMultiply(v, reciprocal)
+    }
 
-//     let i;
-//     for (i = 0; i < _entities.length; i++) {
-//       _entities[i].update();
-//     }
+}
 
-//     renderer.render();
+class Rectangle {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    
+    constructor(x: number, y: number, width: number, height: number) {
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
+    left = () => {
+        return this.x 
+    }
 
-//   return {
-//     start: _start,
-//     update: _update,
-//     entities: function() {
-//       return _entities;
-//     },
-//     gameFieldHeight: function() {
-//       return _gameFieldHeight;
-//     }
-//   };
-// })();
+    right = () => {
+        return this.x + this.width 
+    }
+
+    top = () => {
+        return this.y
+    }
+
+    bottom = () => {
+        this.y + this.height 
+    }
+
+    intersects = rectangle => {
+        return this.right() >= rectangle.left() && this.left() <= rectangle.right() && this.top() <= rectangle.botom() && this.bottom() >= rectangle.top();
+    }
+
+    static rectUnion = (r1, r2) => {
+        if (r1 === undefined) {
+            return r2; 
+        }
+        if (r2 === undefined) {
+            return r1 
+        }
+
+        let x = Math.min(r1.x, r2.x);
+        let y = Math.min(r1.y, r2.y);
+        let width = Math.max(r1.right(), r2.right()) - Math.min(r1.left(), r2.left());
+        let height = Math.max(r1.bottom(), r2.bottom()) - Math.min(r1.top(), r2.top()); 
+
+        return new Rectangle(x, y, width, height);
+    }
+}
+//Random Number generator 
+
+const randomInt = (max) => {
+    return Math.floor(Math.random() * Math.floor(max))
+}
