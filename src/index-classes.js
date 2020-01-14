@@ -16,9 +16,6 @@ var __extends = (this && this.__extends) || (function () {
 var Entity = /** @class */ (function () {
     function Entity(position, speed, direction) {
         var _this = this;
-        this.update = function (dt) {
-            _this.time += dt;
-        };
         this.collisionRect = function () {
             return new Rectangle(_this.position.x - _this.width / 2, _this.position.y - _this.height / 2, _this.width, _this.height);
         };
@@ -30,6 +27,9 @@ var Entity = /** @class */ (function () {
         this.height = 5;
         this.hp = 1;
     }
+    Entity.prototype.update = function (dt) {
+        this.time += dt;
+    };
     return Entity;
 }());
 var Player = /** @class */ (function (_super) {
@@ -39,7 +39,7 @@ var Player = /** @class */ (function (_super) {
         _this.update = function (dt) {
             _super.prototype.update.call(_this, dt);
             if (_this.collisionRect().top() <= 0 ||
-                _this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+                _this.collisionRect().bottom() >= game.gameFieldRect.bottom()) {
                 _this.direction.y *= -1;
             }
         };
@@ -56,7 +56,7 @@ var Enemy = /** @class */ (function (_super) {
         _this.update = function (dt) {
             _super.prototype.update.call(_this, dt);
             if (_this.collisionRect().top() <= 0 ||
-                _this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+                _this.collisionRect().bottom() >= game.gameFieldRect.bottom()) {
                 _this.direction.y *= -1;
             }
         };
@@ -72,7 +72,7 @@ var Renderer = /** @class */ (function () {
     function Renderer() {
         var _this = this;
         this.canvas = document.querySelector("#game-layer");
-        this.context = canvas.getContext("2d");
+        this.context = this.canvas.getContext("2d");
         this.enemyColors = ["rgb(150, 7, 7)",
             "rgb(150, 89, 7)",
             "rgb(56, 150, 7)",
@@ -162,7 +162,7 @@ var Game = /** @class */ (function () {
         };
     }
     Game.prototype.addEntity = function (entity) {
-        this.entities.push;
+        this.entities.push(entity);
         if (entity instanceof Player) {
             this.player = entity;
         }
@@ -241,3 +241,7 @@ var Rectangle = /** @class */ (function () {
 var randomInt = function (max) {
     return Math.floor(Math.random() * Math.floor(max));
 };
+var physics = new Physics();
+var renderer = new Renderer();
+var game = new Game();
+game.start();

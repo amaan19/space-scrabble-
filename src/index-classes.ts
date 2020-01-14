@@ -20,7 +20,7 @@ class Entity {
     this.hp = 1
   }
 
-  update = (dt) => {
+  update(dt) {
       this.time += dt;
   }
 
@@ -46,7 +46,7 @@ class Player extends Entity {
   update = (dt) => {
       super.update(dt)
     if (this.collisionRect().top() <= 0 || 
-    this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+    this.collisionRect().bottom() >= game.gameFieldRect.bottom()) {
         this.direction.y *= -1;
     }
 }
@@ -65,7 +65,7 @@ class Enemy extends Entity {
   update = (dt) => {
       super.update(dt)
       if (this.collisionRect().top() <= 0 || 
-          this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+          this.collisionRect().bottom() >= game.gameFieldRect.bottom()) {
               this.direction.y *= -1 
           }
     }
@@ -75,7 +75,7 @@ class Enemy extends Entity {
 
 class Renderer {
     canvas = document.querySelector("#game-layer");
-    context = canvas.getContext("2d")
+    context = this.canvas.getContext("2d")
     enemyColors = ["rgb(150, 7, 7)",
                         "rgb(150, 89, 7)",
                         "rgb(56, 150, 7)",
@@ -153,7 +153,7 @@ class Game {
   };
 
   addEntity(entity) {
-      this.entities.push
+      this.entities.push(entity)
 
       if( entity instanceof Player ) {
         this.player = entity;
@@ -284,3 +284,10 @@ class Rectangle {
 const randomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max))
 }
+
+const physics = new Physics() 
+const renderer = new Renderer()
+const game = new Game() 
+game.start()
+
+
