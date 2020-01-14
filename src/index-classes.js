@@ -12,7 +12,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var _this = this;
 // Player Object
 var Entity = /** @class */ (function () {
     function Entity(position, speed, direction) {
@@ -99,18 +98,21 @@ var Renderer = /** @class */ (function () {
                 }
             }
         };
-        //Physics object
     }
     return Renderer;
 }());
 //Physics object
 var Physics = /** @class */ (function () {
     function Physics() {
-        this.update = function () {
+        this.update = function (dt) {
             var i;
+            var e;
+            var velocity;
             var entities = game.entities;
-            for (i = 0; i < entities.length; i++) {
-                entities[i].y += entities[i].direction;
+            for (i = entities.length - 1; i >= 0; i--) {
+                e = entities[i];
+                velocity = Vector2d.vectorScalarMultiply(e.direction, e.speed);
+                e.position = Vector2d.vectorAdd(e.position, Vector2d.vectorScalarMultiply(velocity, dt));
             }
         };
     }
@@ -120,26 +122,54 @@ var Physics = /** @class */ (function () {
 var Game = /** @class */ (function () {
     function Game() {
         var _this = this;
-        this.gameFieldHeight = 200;
-        this.entities = [];
+        this.started = false;
         this.start = function () {
-            _this.entities.push(new Player(100, 175));
-            _this.entities.push(new Enemy(20, 25));
-            _this.entities.push(new Enemy(80, 25));
-            _this.entities.push(new Enemy(160, 25));
-            window.requestAnimationFrame(_this.update);
-            // debugger;
+            _this.entities = [];
+            _this.enemies = [];
+            _this.gameFieldRect = new Rectangle(0, 0, 300, 180);
+            _this.addEntity(new Player(new Vector2d(100, 175), 25, new Vector2d(0, -1)));
+            _this.addEntity(new Enemy(new Vector2d(20, 25), 20, new Vector2d(0, 1), 0));
+            _this.addEntity(new Enemy(new Vector2d(50, 25), 10, new Vector2d(0, 1), 1));
+            _this.addEntity(new Enemy(new Vector2d(80, 25), 15, new Vector2d(0, 1), 2));
+            _this.addEntity(new Enemy(new Vector2d(120, 25), 25, new Vector2d(0, 1), 3));
+            _this.addEntity(new Enemy(new Vector2d(140, 25), 30, new Vector2d(0, 1), 4));
+            if (!_this.started) {
+                window.requestAnimationFrame(_this.update);
+                _this.started = true;
+            }
+        };
+        this.removeEntities = function () {
+            if (!_this.entities)
+                return;
+            var isNotInEntities = function (item) {
+                return !_this.entities.includes(item);
+            };
+            _this.entities = _this.entities.filter(isNotInEntities);
+            _this.enemies = _this.enemies.filter(isNotInEntities);
+            if (_this.entities.includes(_this.player)) {
+                _this.player = undefined;
+            }
         };
         this.update = function () {
-            physics.update();
+            var dt = 1 / 60;
+            physics.update(dt);
             var i;
-            for (i = 0; i < _this.entities.length; i++) {
-                _this.entities[i].update();
+            for (i = _this.entities.length - 1; i >= 0; i--) {
+                _this.entities[i].update(dt);
             }
-            renderer.render();
+            renderer.render(dt);
             window.requestAnimationFrame(_this.update);
         };
     }
+    Game.prototype.addEntity = function (entity) {
+        this.entities.push;
+        if (entity instanceof Player) {
+            this.player = entity;
+        }
+        if (entity instanceof Enemy) {
+            this.enemies.push(entity);
+        }
+    };
     return Game;
 }());
 // let game = new Game();
@@ -164,8 +194,8 @@ var Vector2d = /** @class */ (function () {
         return Math.sqrt(v.x * v.x + v.y * v.y);
     };
     Vector2d.vectorNormalise = function (v) {
-        var reciprocal = 1.0 / (_this.vectorLength(v) + 1.0e-037);
-        return _this.vectorScalarMultiply(v, reciprocal);
+        var reciprocal = 1.0 / (Vector2d.vectorLength(v) + 1.0e-037);
+        return Vector2d.vectorScalarMultiply(v, reciprocal);
     };
     return Vector2d;
 }());

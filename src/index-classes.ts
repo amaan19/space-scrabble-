@@ -68,6 +68,7 @@ class Enemy extends Entity {
           this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
               this.direction.y *= -1 
           }
+    }
 }
 
 //Renderer Object
@@ -102,17 +103,23 @@ class Renderer {
                 this.drawRectangle("rgb(255, 255, 0)", entity);
               }
     }
+    }
 }
 
 //Physics object
 
 class Physics {
-  update = () => {
+  
+    update = dt => {
     let i;
+    let e;
+    let velocity;
     let entities = game.entities;
 
-    for (i = 0; i < entities.length; i++) {
-      entities[i].y += entities[i].direction;
+    for (i = entities.length - 1; i >=0; i--) {
+        e = entities[i];
+        velocity = Vector2d.vectorScalarMultiply( e.direction, e.speed)
+        e.position = Vector2d.vectorAdd(e.position, Vector2d.vectorScalarMultiply(velocity, dt))
     }
   };
 }
@@ -121,27 +128,66 @@ class Physics {
 //Game object
 
 class Game {
-  gameFieldHeight = 200;
-  entities = [];
+     entities;
+     enemies;
+     player;
+     gameFieldRect;
+     started = false
+     
+     start = () => {
+    this.entities = [];
+    this.enemies = [];
+    this.gameFieldRect = new Rectangle(0, 0, 300, 180);
 
-  start = () => {
-    this.entities.push(new Player(100, 175));
-    this.entities.push(new Enemy(20, 25));
-    this.entities.push(new Enemy(80, 25));
-    this.entities.push(new Enemy(160, 25));
-
-    window.requestAnimationFrame(this.update);
-    // debugger;
+    this.addEntity(new Player( new Vector2d(100, 175), 25, new Vector2d(0, -1)));
+    this.addEntity(new Enemy(new Vector2d(20, 25), 20, new Vector2d(0, 1), 0));
+    this.addEntity(new Enemy(new Vector2d(50, 25), 10, new Vector2d(0, 1), 1));
+    this.addEntity(new Enemy(new Vector2d(80, 25), 15, new Vector2d(0, 1), 2));
+    this.addEntity(new Enemy(new Vector2d(120, 25), 25, new Vector2d(0, 1), 3));
+    this.addEntity(new Enemy(new Vector2d(140, 25), 30, new Vector2d(0, 1), 4));
+    
+    if(!this.started) {
+        window.requestAnimationFrame(this.update);
+        this.started = true;
+    }
   };
 
-  update = () => {
-    physics.update();
-    let i;
-    for (i = 0; i < this.entities.length; i++) {
-      this.entities[i].update();
+  addEntity(entity) {
+      this.entities.push
+
+      if( entity instanceof Player ) {
+        this.player = entity;
     }
 
-    renderer.render();
+    if( entity instanceof Enemy ) {
+        this.enemies.push(entity);
+    }
+  }
+
+  removeEntities = () => {
+      if (!this.entities) return; 
+
+      let isNotInEntities = (item) => {
+          return !this.entities.includes(item)
+      }
+
+      this.entities = this.entities.filter(isNotInEntities);
+      this.enemies = this.enemies.filter(isNotInEntities);
+
+      if(this.entities.includes(this.player)) {
+          this.player = undefined 
+      }
+  }
+
+  update = () => {
+    let dt = 1/60
+    physics.update(dt);
+
+    let i;
+    for( i= this.entities.length-1; i>=0; i-- ) {
+        this.entities[i].update(dt);
+    }
+    renderer.render(dt);
 
     window.requestAnimationFrame(this.update);
   };
@@ -178,8 +224,8 @@ class Vector2d {
     }
 
     static vectorNormalise = v =>  {
-        let reciprocal = 1.0 / (this.vectorLength(v) + 1.0e-037);
-        return this.vectorScalarMultiply(v, reciprocal)
+        let reciprocal = 1.0 / (Vector2d.vectorLength(v) + 1.0e-037);
+        return Vector2d.vectorScalarMultiply(v, reciprocal)
     }
 
 }
