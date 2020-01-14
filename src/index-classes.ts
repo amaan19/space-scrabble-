@@ -3,235 +3,284 @@
 // Player Object
 
 class Entity {
-  x: number;
-  y: number;
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    position: any;
+    speed: any;
+    direction: any;
+    time: number;
+    width: number;
+    height: number;
+    hp: number;
+  constructor(position, speed, direction) {
+    this.position = position
+    this.speed = speed
+    this.direction = direction
+    this.time = 0
+    this.width = 5
+    this.height = 5
+    this.hp = 1
+  }
+
+  update = (dt) => {
+      this.time += dt;
+  }
+
+  collisionRect = () => {
+      return new Rectangle(this.position.x - this.width/2,
+                            this.position.y - this.height/2,
+                            this.width, 
+                            this.height);
+      
   }
 }
 
 class Player extends Entity {
   width: number;
   height: number;
-  direction: number;
 
-  constructor(x, y) {
-    super(x, y);
-    this.width = 20;
-    this.height = 20;
-    this.direction = -1;
-  }
+    constructor(position, speed, direction) {
+        super(position, speed, direction);
+        this.width = 20;
+        this.height = 10;
+      }
 
-  update = () => {
-    if (this.y <= 0 || this.y + this.height >= game.gameFieldHeight {
-      this.direction *= -1;
+  update = (dt) => {
+      super.update(dt)
+    if (this.collisionRect().top() <= 0 || 
+    this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+        this.direction.y *= -1;
     }
-  };
 }
 
 class Enemy extends Entity {
-  width: number;
-  height: number;
-  direction: number;
+ 
+    rank: number;
 
-  constructor(x, y) {
-    super(x, y);
-    this.width = 10;
+  constructor(position, speed, direction, rank) {
+    super(position, speed, direction);
+    this.width = 13;
     this.height = 10;
-    this.direction = 1;
+    this.rank = rank;
   }
 
-  update = () => {
-    if (this.y <= 0 || this.y + this.height >= game.gameFieldHeight {
-      this.direction *= -1;
+  update = (dt) => {
+      super.update(dt)
+      if (this.collisionRect().top() <= 0 || 
+          this.collisionRect().bottom() >= game.gameFieldRect().bottom()) {
+              this.direction.y *= -1 
+          }
     }
-  }
 }
 
 //Renderer Object
 
 class Renderer {
-  drawEnemy = (context, enemy) => {
-    context.fillStyle = "red";
-    context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-  };
+    canvas = document.querySelector("#game-layer");
+    context = canvas.getContext("2d")
+    enemyColors = ["rgb(150, 7, 7)",
+                        "rgb(150, 89, 7)",
+                        "rgb(56, 150, 7)",
+                        "rgb(7, 150, 122)",
+                        "rgb(46, 7, 150)"];
 
-  drawPlayer = (context, player) => {
-    context.fillStyle = "blue";
-    context.fillRect(player.x, player.y, player.width, player.height);
-  };
-
-  render = () => {
-    let canvas = document.querySelector("#game-layer");
-    let context = canvas.getContext("2d");
-
-    context.fillStyle = "gray";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    let i;
-    let entity;
-    let entities = game.entities;
-
-    for (i = 0; i < entities.length; i++) {
-      entity = entities[i];
-
-      if (entity instanceof Enemy) {
-        this.drawEnemy(context, entity);
-      } else if (entity instanceof Player) {
-        this.drawPlayer(context, entity);
-      }
+    drawRectangle = (colour, entity) => {
+        this.context.fillStyle = colour;
+        this.context.fillRect(entity.position.x - entity.width/2, entity.position.y - entity.height/2, entity.width, entity.height);
     }
-  };
+
+    render = dt => {
+        this.context.fillStyle = "black"
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        let i;
+        let entity;
+        let entities = game.entities
+
+        for (i = 0; i < entities.length; i++) {
+            entity = entities[i];
+            if (entity instanceof Enemy) {
+                this.drawRectangle(this.enemyColors[entity.rank], entity);
+              } else if (entity instanceof Player) {
+                this.drawRectangle("rgb(255, 255, 0)", entity);
+              }
+    }
+    }
 }
-
-// let renderer = (function() {
-//   function _drawEnemy(context, enemy) {
-//     context.fillStyle = "red";
-//     context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-//   }
-
-//   function _drawPlayer(context, player) {
-//     context.fillStyle = "blue";
-//     context.fillRect(player.x, player.y, player.width, player.height);
-//   }
-
-//   function _render() {
-//     let canvas = document.querySelector("#game-layer");
-//     let context = canvas.getContext("2d");
-
-//     context.fillStyle = "gray";
-//     context.fillRect(0, 0, canvas.width, canvas.height);
-
-//     let i;
-//     let entity;
-//     let entities = game.entities();
-
-//     for (i = 0; i < entities.length; i++) {
-//       entity = entities[i];
-
-//       if (entity instanceof Enemy) {
-//         _drawEnemy(context, entity);
-//       } else if (entity instanceof Player) {
-//         _drawPlayer(context, entity);
-//       }
-//     }
-//   }
-
-//   return {
-//     render: _render
-//   };
-// })();
 
 //Physics object
 
 class Physics {
-  update = () => {
+  
+    update = dt => {
     let i;
+    let e;
+    let velocity;
     let entities = game.entities;
 
-    for (i = 0; i < entities.length; i++) {
-      entities[i].y += entities[i].direction;
+    for (i = entities.length - 1; i >=0; i--) {
+        e = entities[i];
+        velocity = Vector2d.vectorScalarMultiply( e.direction, e.speed)
+        e.position = Vector2d.vectorAdd(e.position, Vector2d.vectorScalarMultiply(velocity, dt))
     }
   };
 }
 
-// let physics = (function() {
-//   function _update() {
-//     let i;
-//     let entities = game.entities();
-
-//     for (i = 0; i < entities.length; i++) {
-//       entities[i].y += entities[i].direction;
-//     }
-//   }
-
-//   return {
-//     update: _update
-//   };
-// })();
 
 //Game object
 
 class Game {
-  gameFieldHeight = 200;
-  entities = [];
+     entities;
+     enemies;
+     player;
+     gameFieldRect;
+     started = false
+     
+     start = () => {
+    this.entities = [];
+    this.enemies = [];
+    this.gameFieldRect = new Rectangle(0, 0, 300, 180);
 
-  start = () => {
-    this.entities.push(new Player(100, 175));
-    this.entities.push(new Enemy(20, 25));
-    this.entities.push(new Enemy(80, 25));
-    this.entities.push(new Enemy(160, 25));
-
-    window.requestAnimationFrame(this.update);
-    // debugger;
+    this.addEntity(new Player( new Vector2d(100, 175), 25, new Vector2d(0, -1)));
+    this.addEntity(new Enemy(new Vector2d(20, 25), 20, new Vector2d(0, 1), 0));
+    this.addEntity(new Enemy(new Vector2d(50, 25), 10, new Vector2d(0, 1), 1));
+    this.addEntity(new Enemy(new Vector2d(80, 25), 15, new Vector2d(0, 1), 2));
+    this.addEntity(new Enemy(new Vector2d(120, 25), 25, new Vector2d(0, 1), 3));
+    this.addEntity(new Enemy(new Vector2d(140, 25), 30, new Vector2d(0, 1), 4));
+    
+    if(!this.started) {
+        window.requestAnimationFrame(this.update);
+        this.started = true;
+    }
   };
 
-  update = () => {
-    physics.update();
-    let i;
-    for (i = 0; i < this.entities.length; i++) {
-      this.entities[i].update();
+  addEntity(entity) {
+      this.entities.push
+
+      if( entity instanceof Player ) {
+        this.player = entity;
     }
 
-    renderer.render();
+    if( entity instanceof Enemy ) {
+        this.enemies.push(entity);
+    }
+  }
+
+  removeEntities = () => {
+      if (!this.entities) return; 
+
+      let isNotInEntities = (item) => {
+          return !this.entities.includes(item)
+      }
+
+      this.entities = this.entities.filter(isNotInEntities);
+      this.enemies = this.enemies.filter(isNotInEntities);
+
+      if(this.entities.includes(this.player)) {
+          this.player = undefined 
+      }
+  }
+
+  update = () => {
+    let dt = 1/60
+    physics.update(dt);
+
+    let i;
+    for( i= this.entities.length-1; i>=0; i-- ) {
+        this.entities[i].update(dt);
+    }
+    renderer.render(dt);
 
     window.requestAnimationFrame(this.update);
   };
 }
 
-let game = new Game();
-let physics = new Physics();
-let renderer = new Renderer();
-game.start();
+// let game = new Game();
+// let physics = new Physics();
+// let renderer = new Renderer();
+// game.start();
 
-// let game = (function() {
-//   let _gameFieldHeight = 200;
-//   let _entities = [];
+class Vector2d {
+    x: number;
+    y: number; 
 
-//   function _start() {
-//     _entities.push(new Player(100, 175, 0));
-//     _entities.push(new Enemy(20, 25));
-//     _entities.push(new Enemy(80, 25));
-//     _entities.push(new Enemy(160, 25));
+    constructor(x: number, y:number) {
+        this.x = x
+        this.y = y 
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
-//   update() {
-//     physics.update();
+    static vectorAdd = (v1, v2) => {
+        return new Vector2d(v1.x + v2.x, v1.y + v2.y);
+    }
 
-//     let i;
-//     for (i = 0; i < _entities.length; i++) {
-//       _entities[i].update();
-//     }
+    static vectorSubtract = (v1, v2) => {
+        return new Vector2d(v1.x - v2.x, v1.y - v2.y);
+    }
 
-//     renderer.render();
+    static vectorScalarMultiply = (v, s: number) => {
+        return new Vector2d(v.x * s, v.y * s)
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
-// }
+    static vectorLength = v => {
+        return Math.sqrt(v.x * v.x + v.y * v.y)
+    }
 
-//   function _update() {
-//     physics.update();
+    static vectorNormalise = v =>  {
+        let reciprocal = 1.0 / (Vector2d.vectorLength(v) + 1.0e-037);
+        return Vector2d.vectorScalarMultiply(v, reciprocal)
+    }
 
-//     let i;
-//     for (i = 0; i < _entities.length; i++) {
-//       _entities[i].update();
-//     }
+}
 
-//     renderer.render();
+class Rectangle {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    
+    constructor(x: number, y: number, width: number, height: number) {
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+    }
 
-//     window.requestAnimationFrame(this.update.bind(this));
-//   }
+    left = () => {
+        return this.x 
+    }
 
-//   return {
-//     start: _start,
-//     update: _update,
-//     entities: function() {
-//       return _entities;
-//     },
-//     gameFieldHeight: function() {
-//       return _gameFieldHeight;
-//     }
-//   };
-// })();
+    right = () => {
+        return this.x + this.width 
+    }
+
+    top = () => {
+        return this.y
+    }
+
+    bottom = () => {
+        this.y + this.height 
+    }
+
+    intersects = rectangle => {
+        return this.right() >= rectangle.left() && this.left() <= rectangle.right() && this.top() <= rectangle.botom() && this.bottom() >= rectangle.top();
+    }
+
+    static rectUnion = (r1, r2) => {
+        if (r1 === undefined) {
+            return r2; 
+        }
+        if (r2 === undefined) {
+            return r1 
+        }
+
+        let x = Math.min(r1.x, r2.x);
+        let y = Math.min(r1.y, r2.y);
+        let width = Math.max(r1.right(), r2.right()) - Math.min(r1.left(), r2.left());
+        let height = Math.max(r1.bottom(), r2.bottom()) - Math.min(r1.top(), r2.top()); 
+
+        return new Rectangle(x, y, width, height);
+    }
+}
+//Random Number generator 
+
+const randomInt = (max) => {
+    return Math.floor(Math.random() * Math.floor(max))
+}
