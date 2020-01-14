@@ -73,37 +73,35 @@ class Enemy extends Entity {
 //Renderer Object
 
 class Renderer {
-  drawEnemy = (context, enemy) => {
-    context.fillStyle = "red";
-    context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-  };
+    canvas = document.querySelector("#game-layer");
+    context = canvas.getContext("2d")
+    enemyColors = ["rgb(150, 7, 7)",
+                        "rgb(150, 89, 7)",
+                        "rgb(56, 150, 7)",
+                        "rgb(7, 150, 122)",
+                        "rgb(46, 7, 150)"];
 
-  drawPlayer = (context, player) => {
-    context.fillStyle = "blue";
-    context.fillRect(player.x, player.y, player.width, player.height);
-  };
-
-  render = () => {
-    let canvas = document.querySelector("#game-layer");
-    let context = canvas.getContext("2d");
-
-    context.fillStyle = "gray";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    let i;
-    let entity;
-    let entities = game.entities;
-
-    for (i = 0; i < entities.length; i++) {
-      entity = entities[i];
-
-      if (entity instanceof Enemy) {
-        this.drawEnemy(context, entity);
-      } else if (entity instanceof Player) {
-        this.drawPlayer(context, entity);
-      }
+    drawRectangle = (colour, entity) => {
+        this.context.fillStyle = colour;
+        this.context.fillRect(entity.position.x - entity.width/2, entity.position.y - entity.height/2, entity.width, entity.height);
     }
-  };
+
+    render = dt => {
+        this.context.fillStyle = "black"
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        let i;
+        let entity;
+        let entities = game.entities
+
+        for (i = 0; i < entities.length; i++) {
+            entity = entities[i];
+            if (entity instanceof Enemy) {
+                this.drawRectangle(this.enemyColors[entity.rank], entity);
+              } else if (entity instanceof Player) {
+                this.drawRectangle("rgb(255, 255, 0)", entity);
+              }
+    }
 }
 
 //Physics object
