@@ -4,12 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
     "webpack": "^4.41.5"
+  },
+  "dependencies": {
+    "webpack-cli": "^3.3.10"
   }
 }
