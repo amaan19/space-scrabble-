@@ -6,7 +6,7 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   width: any;
-  height: any;
+  height: any;  
 
   //Change to number and show to Sam
 

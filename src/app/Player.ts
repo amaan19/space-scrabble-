@@ -1,5 +1,6 @@
 import { Entity } from "./App";
 import { Vector2d } from "./Physics";
+import { gameFieldRect } from "../config";
 
 export class Player extends Entity {
   width: number;
@@ -15,7 +16,7 @@ export class Player extends Entity {
     super.update(dt);
     if (
       this.collisionRect().top() <= 0 ||
-      this.collisionRect().bottom() >= game.gameFieldRect.bottom()
+      this.collisionRect().bottom() >= gameFieldRect.bottom()
     ) {
       this.direction.y *= -1;
     }

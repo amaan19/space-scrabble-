@@ -1,18 +1,19 @@
 import { Player } from "./Player";
 import { Enemy } from "./Enemy";
 import { Rectangle, Vector2d } from "./Physics";
+// import {gameFieldRect} from '../config'
 
 export class Game {
   entities: Entity[];
   enemies: Enemy[];
   player: Player;
-  gameFieldRect: Rectangle;
+  // gameFieldRect: Rectangle;
   started = false;
 
   start = () => {
     this.entities = [];
     this.enemies = [];
-    this.gameFieldRect = new Rectangle(0, 0, 300, 180);
+    // this.gameFieldRect = new Rectangle(0, 0, 300, 180);
 
     this.addEntity(new Player(new Vector2d(100, 175), 25, new Vector2d(0, -1)));
     this.addEntity(new Enemy(new Vector2d(20, 25), 20, new Vector2d(0, 1), 0));
