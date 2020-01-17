@@ -1,4 +1,4 @@
-import { Entity } from "./App";
+import { Entity, Game } from "./App";
 import { Player } from "./Player";
 import { Enemy } from "./Enemy";
 
@@ -6,7 +6,7 @@ export class Renderer {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   width: any;
-  height: any;  
+  height: any;
 
   //Change to number and show to Sam
 
@@ -35,13 +35,12 @@ export class Renderer {
     );
   };
 
-  render = (dt: number) => {
+  render = (dt: number, entities: Entity[]) => {
     this.context.fillStyle = "black";
     this.context.fillRect(0, 0, this.width, this.height);
 
     let i;
     let entity;
-    let entities = game.entities;
 
     for (i = 0; i < entities.length; i++) {
       entity = entities[i];

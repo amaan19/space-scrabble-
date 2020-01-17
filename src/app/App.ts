@@ -57,13 +57,13 @@ export class Game {
 
   update = () => {
     let dt = 1 / 60;
-    physics.update(dt);
+    physics.update(dt, this.entities);
 
     let i;
     for (i = this.entities.length - 1; i >= 0; i--) {
       this.entities[i].update(dt);
     }
-    renderer.render(dt);
+    renderer.render(dt, this.entities);
 
     window.requestAnimationFrame(this.update);
   };

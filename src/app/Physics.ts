@@ -1,9 +1,10 @@
+import { Entity } from "./App";
+
 export class Physics {
-    update = (dt: number) => {
+    update = (dt: number, entities: Entity[]) => {
     let i;
     let e;
     let velocity;
-    let entities = game.entities;
 
     for (i = entities.length - 1; i >=0; i--) {
         e = entities[i];
