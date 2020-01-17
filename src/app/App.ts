@@ -1,18 +1,23 @@
 import { Player } from "./Player";
 import { Enemy } from "./Enemy";
-import { Rectangle, Vector2d } from "./Physics";
+import { Rectangle, Vector2d, Physics } from "./Physics";
+import { Renderer } from "./Renderer";
 // import {gameFieldRect} from '../config'
 
 export class Game {
   entities: Entity[];
   enemies: Enemy[];
   player: Player;
+  physics: Physics;
+  renderer: Renderer;
   // gameFieldRect: Rectangle;
   started = false;
 
   start = () => {
     this.entities = [];
     this.enemies = [];
+    this.physics = new Physics
+    this.renderer = new Renderer
     // this.gameFieldRect = new Rectangle(0, 0, 300, 180);
 
     this.addEntity(new Player(new Vector2d(100, 175), 25, new Vector2d(0, -1)));
@@ -57,13 +62,13 @@ export class Game {
 
   update = () => {
     let dt = 1 / 60;
-    physics.update(dt, this.entities);
+    this.physics.update(dt, this.entities);
 
     let i;
     for (i = this.entities.length - 1; i >= 0; i--) {
       this.entities[i].update(dt);
     }
-    renderer.render(dt, this.entities);
+    this.renderer.render(dt, this.entities);
 
     window.requestAnimationFrame(this.update);
   };
